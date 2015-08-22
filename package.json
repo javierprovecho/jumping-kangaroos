@@ -19,6 +19,8 @@
     "express-session": "^1.11.3",
     "passport": "^0.3.0",
     "passport-eveonline": "^0.1.1",
-    "serve-static": "^1.10.0"
+    "sails-postgresql": "^0.10.16",
+    "serve-static": "^1.10.0",
+    "waterline": "^0.10.26"
   }
 }
