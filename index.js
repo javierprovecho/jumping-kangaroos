@@ -50,6 +50,53 @@ passport.deserializeUser(function(name, done) {
     done(null, name)
 });
 
+var Waterline = require('waterline');
+var orm = new Waterline();
+
+app.set('DATABASE_URL', process.env.DATABASE_URL);
+var postgres = require('sails-postgresql');
+var config = {
+    adapters: {
+        'default': postgres,
+        postgres: postgres
+    },
+    connections: {
+        herokuPostgres: {
+            adapter: 'postgres',
+            url: app.get('DATABASE_URL'),
+            pool: false,
+            ssl: true
+        }
+    },
+    defaults: {
+        migrate: 'alter'
+    }
+};
+
+var Routes = Waterline.Collection.extend({
+
+  identity: 'routes',
+  connection: 'herokuPostgres',
+
+  attributes: {
+    origin: {
+        type: 'string',
+        required: true
+    },
+    destination: {
+        type: 'string',
+        required: true,
+    },
+    price: {
+        type: 'integer',
+        required: true,
+        min: 0
+    }
+  }
+});
+
+orm.loadCollection(Routes);
+
 app.get('/', function (req, res) {
     res.send('Welcome foreigner!');
 });
@@ -64,7 +111,8 @@ app.get('/error', function (req, res) {
 
 app.get('/auth/status', function(req, res){
     if(req.user) {
-        res.status(200).send({ message: 'Keep moving! ;)' });
+        //res.status(200).send({ message: 'Keep moving! ;)' });
+        res.Next();
     } else {
         res.status(401).send({ message: 'None shall pass!' });
     }
@@ -81,8 +129,15 @@ app.get('/auth/eveonline/callback',
     })
 );
 
-app.set('port', (process.env.PORT || 5000));
+orm.initialize(config, function(err, models) {
+    if(err) throw err;
 
-var server = app.listen(app.get('port'), function () {
-    console.log('Node app is running on port', app.get('port'));
+    app.models = models.collections;
+    app.connections = models.connections;
+    
+    app.set('port', (process.env.PORT || 5000));
+    
+    var server = app.listen(app.get('port'), function () {
+        console.log('Node app is running on port', app.get('port'));
+    });
 });
