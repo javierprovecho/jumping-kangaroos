@@ -147,11 +147,15 @@ app.post('/routes/delete', function(req, res) {
 
 app.get('/auth/status', function(req, res){
     if(req.user) {
-        //res.status(200).send({ message: 'Keep moving! ;)' });
-        res.Next();
+        res.status(200).send({ message: 'Keep moving! ;)', name: req.user});
     } else {
         res.status(401).send({ message: 'None shall pass!' });
     }
+});
+
+app.get('/auth/logout', function(req, res){
+    req.logout();
+    res.send({ status: 'ok'});
 });
 
 //////////////////////////////////////////////////////////////////
@@ -180,7 +184,7 @@ app.get('/auth/eveonline',
 
 app.get('/auth/eveonline/callback',
     passport.authenticate('eveonline', {
-        successRedirect: '/admin',
+        successRedirect: '/',
         failureRedirect: '/error',
     })
 );

@@ -27,4 +27,50 @@ angular.module('jumpingKangaroosApp', [])
                 if (!todo.done) todoList.todos.push(todo);
             });
         };
-    });
+    })
+    .controller('AuthController', ['$interval', '$http', function($interval, $http) {
+        var auth = this;
+        
+        auth.check = function() {
+            $http.get('../auth/status').
+                then(function(response) {
+                    auth.status = true;
+                    auth.name = response.data.name;
+                }, function(response) {
+                    auth.status = false;
+                });
+        };
+        
+        auth.logout = function() {
+            $http.get('../auth/logout');
+            auth.check();
+        };
+        
+        auth.check();
+        //$interval(auth.check, 5000);
+    }])
+    .controller('RoutesController', ['$interval', '$http', function($interval, $http) {
+        var auth = this;
+        
+        auth.check = function() {
+            $http.get('../auth/status').
+                then(function(response) {
+                    if (response.statusText == 'OK') {
+                        auth.status = true;
+                        auth.name = response.data.name;
+                    }
+                }, function(response) {
+                    if (response.statusText == 'Unauthorized') {
+                        auth.status = false;
+                    }
+                });
+        };
+        
+        auth.logout = function() {
+            $http.get('../auth/logout');
+            auth.check();
+        };
+        
+        auth.check();
+        //$interval(auth.check, 5000);
+    }]);
