@@ -128,21 +128,29 @@ app.post('/routes/search', function(req, res) {
 });
 
 app.post('/routes/create', function(req, res) {
-    app.models.routes
-        .create(req.body,
-        function(err, model) {
-            if(err) return res.status(500).json({ err: err });
-            res.json(model);
-        });
+    if(req.user) {
+        app.models.routes
+            .create(req.body,
+            function(err, model) {
+                if(err) return res.status(500).json({ err: err });
+                res.json(model);
+            });
+    } else {
+        res.status(401).send({ message: 'None shall pass!' });
+    }
 });
 
 app.post('/routes/delete', function(req, res) {
-    app.models.routes
-        .destroy(req.body,
-            function(err) {
-                if(err) return res.status(500).json({ err: err });
-                res.json({ status: 'ok' });
-            });
+    if(req.user) {
+        app.models.routes
+            .destroy(req.body,
+                function(err) {
+                    if(err) return res.status(500).json({ err: err });
+                    res.json({ status: 'ok' });
+                });
+    } else {
+        res.status(401).send({ message: 'None shall pass!' });
+    }
 });
 
 app.get('/auth/status', function(req, res){
