@@ -1,36 +1,58 @@
 'use strict';
 /*global angular*/
-angular.module('jumpingKangaroosApp', [])
-    .controller('RewardCalculatorController', [
-        function() {
-            var todoList = this;
-            todoList.todos = [
-                {text:'learn angular', done:true},
-                {text:'build an angular app', done:false}];
-     
-            todoList.addTodo = function() {
-                todoList.todos.push({text:todoList.todoText, done:false});
-                todoList.todoText = '';
+angular.module('jumpingKangaroosApp', ['ui.unique'])
+    .controller('RewardCalculatorController', ['$rootScope', '$scope', '$http',
+        function($rootScope, $scope, $http) {
+            var calculator = this;
+            
+            $rootScope.$on('routesChange', function(event, routes) {
+                calculator.routes = routes.all;
+            });
+            
+            calculator.getRoutes = function() {
+                $http.get('../routes/all')
+                    .then(function(response) {
+                        calculator.routes = response.data;
+                    }, function(response) {
+                        calculator.routes = [];
+                    });
             };
-     
-            todoList.remaining = function() {
-                var count = 0;
-                angular.forEach(todoList.todos, function(todo) {
-                    count += todo.done ? 0 : 1;
+            
+            $scope.$watch('calculator.selectedOrigin',
+                function(newOrigin) {
+                    $http.post('../routes/search',
+                        { 
+                            origin: calculator.selectedOrigin
+                            
+                        })
+                        .then(function(response) {
+                            calculator.routesWithSelectedOrigin = response.data;
+                        }, function(response) {
+                            calculator.routes = [];
+                        });
                 });
-                return count;
-            };
-     
-            todoList.archive = function() {
-                var oldTodos = todoList.todos;
-                todoList.todos = [];
-                angular.forEach(oldTodos, function(todo) {
-                    if (!todo.done) todoList.todos.push(todo);
+                
+            $scope.$watch('calculator.selectedDestination',
+                function(newDestination) {
+                    if(!!calculator.selectedOrigin && !!calculator.selectedDestination) {
+                        $http.post('../routes/search',
+                            { 
+                                origin: calculator.selectedOrigin,
+                                destination: calculator.selectedDestination
+                            })
+                            .then(function(response) {
+                                calculator.price = response.data[0].price;
+                            }, function(response) {
+                                calculator.price = 0;
+                            });                        
+                    }
                 });
-            };
+            
+            
+            calculator.getRoutes();
         }])
-    .controller('AuthController', ['$rootScope', '$interval', '$http',
-        function($rootScope, $interval, $http) {
+    .controller('AuthController', ['$rootScope', '$http',
+        function($rootScope, $http) {
             var auth = this;
             
             auth.check = function() {
@@ -54,8 +76,8 @@ angular.module('jumpingKangaroosApp', [])
             
             auth.check();
         }])
-    .controller('RoutesController', ['$rootScope', '$interval', '$http',
-        function($rootScope, $interval, $http) {
+    .controller('RoutesController', ['$rootScope', '$http',
+        function($rootScope, $http) {
             var routes = this;
             
             routes.formDefault = {
@@ -88,6 +110,8 @@ angular.module('jumpingKangaroosApp', [])
                 $http.get('../routes/all')
                     .then(function(response) {
                         routes.all = response.data;
+                        $rootScope.$broadcast('routesChange',
+                            { all: routes.all });
                     }, function(response) {
                         routes.all = [];
                     });
