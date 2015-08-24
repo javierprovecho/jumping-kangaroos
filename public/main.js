@@ -6,7 +6,9 @@ angular.module('jumpingKangaroosApp', ['ui.unique'])
             var calculator = this;
             calculator.selected = {
                 origin: null,
-                destination: null
+                destination: null,
+                space: 1,
+                price: 0
             };
             
             calculator.selectedDestination = null;
@@ -24,9 +26,17 @@ angular.module('jumpingKangaroosApp', ['ui.unique'])
                     });
             };
             
-            $scope.$watch('calculator.selected',
-                function(newSelected, oldSelected) {
-                    console.log('cambio');
+            $scope.$watch('calculator.selected.space',
+                function(newSpace, oldSpace) {
+                    if (newSpace > 340000){
+                        alert('Maximum space exceeded');
+                        calculator.selected.space = 340000;
+                    } else if (newSpace == null) {
+                        return;
+                    } else if(newSpace < 1) {
+                        alert('Space can\'t be negative');
+                        calculator.selected.space = 1;
+                    }
                 });
             
             calculator.getRoutes();
