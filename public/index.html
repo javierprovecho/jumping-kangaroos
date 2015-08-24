@@ -45,21 +45,23 @@
                     <form>
                         <div class="form-group">
                             <label>Select origin system</label>
-                            <select class="form-control" ng-model="calculator.selectedOrigin">
+                            <select class="form-control" ng-model="selected.origin">
                                 <option ng-repeat="route in calculator.routes | unique:'origin'">{{ route.origin }}</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label>Select destination system</label>
-                            <select class="form-control" ng-model="calculator.selectedDestination">
-                                <option ng-repeat="route in calculator.routesWithSelectedOrigin | unique:'destination'">{{ route.destination }}</option>
+                            <select class="form-control" ng-model="selected.destination">
+                                <option ng-repeat="route in calculator.routes | filter:selected.origin:route.origin == selected.origin">{{ route.destination }}</option>
                             </select>
                         </div>
                     </form>
                 </div>
                 <div class="col-md-5 col-md-offset-1">
-                    <h3>Price:</h3>
-                    <p><h1>{{ calculator.price }} ISK</h1>per m3</p>
+                    <div ng-show="selected.origin && selected.destination">
+                        <h3>Price:</h3>
+                        <p><h1 ng-repeat="route in calculator.routes | filter:selected:route.origin == selected.origin && route.destination == selected.destination">{{ route.price }} ISK</h1> per m3</p>
+                    </div>
                 </div>
             </div>
             <hr>

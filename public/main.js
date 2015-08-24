@@ -4,6 +4,12 @@ angular.module('jumpingKangaroosApp', ['ui.unique'])
     .controller('RewardCalculatorController', ['$rootScope', '$scope', '$http',
         function($rootScope, $scope, $http) {
             var calculator = this;
+            calculator.selected = {
+                origin: null,
+                destination: null
+            };
+            
+            calculator.selectedDestination = null;
             
             $rootScope.$on('routesChange', function(event, routes) {
                 calculator.routes = routes.all;
@@ -18,38 +24,13 @@ angular.module('jumpingKangaroosApp', ['ui.unique'])
                     });
             };
             
-            $scope.$watch('calculator.selectedOrigin',
-                function(newOrigin) {
-                    $http.post('../routes/search',
-                        { 
-                            origin: calculator.selectedOrigin
-                            
-                        })
-                        .then(function(response) {
-                            calculator.routesWithSelectedOrigin = response.data;
-                        }, function(response) {
-                            calculator.routes = [];
-                        });
+            $scope.$watch('calculator.selected',
+                function(newSelected, oldSelected) {
+                    console.log('cambio');
                 });
-                
-            $scope.$watch('calculator.selectedDestination',
-                function(newDestination) {
-                    if(!!calculator.selectedOrigin && !!calculator.selectedDestination) {
-                        $http.post('../routes/search',
-                            { 
-                                origin: calculator.selectedOrigin,
-                                destination: calculator.selectedDestination
-                            })
-                            .then(function(response) {
-                                calculator.price = response.data[0].price;
-                            }, function(response) {
-                                calculator.price = 0;
-                            });                        
-                    }
-                });
-            
             
             calculator.getRoutes();
+            
         }])
     .controller('AuthController', ['$rootScope', '$http',
         function($rootScope, $http) {
