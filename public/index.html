@@ -52,15 +52,22 @@
                         <div class="form-group">
                             <label>Select destination system</label>
                             <select class="form-control" ng-model="selected.destination">
-                                <option ng-repeat="route in calculator.routes | filter:selected.origin:route.origin == selected.origin">{{ route.destination }}</option>
+                                <option ng-repeat="route in calculator.routes | filter:selected.origin" ng-show="route.destination != selected.origin">{{ route.destination }}</option>
                             </select>
                         </div>
                     </form>
                 </div>
                 <div class="col-md-5 col-md-offset-1">
-                    <div ng-show="selected.origin && selected.destination">
-                        <h3>Price:</h3>
-                        <p><h1 ng-repeat="route in calculator.routes | filter:selected:route.origin == selected.origin && route.destination == selected.destination">{{ route.price }} ISK</h1> per m3</p>
+                    <div ng-show="selected.origin && selected.destination && selected.origin != selected.destination">
+                        <label>Price</label>
+                        <div ng-repeat="route in calculator.routes | filter:selected:route.origin == selected.origin && route.destination == selected.destination">
+                            <div class="input-group-addon"><b>{{ route.price }}</b> <sub>ISK</sub> / m<sup>3</sup></div><br>
+                            <div class="input-group">
+                                <input type="number" class="form-control" ng-model="calculator.selected.space">
+                                <div class="input-group-addon">m<sup>3</sup></div>
+                            </div><br>
+                            <div class="input-group-addon"><b>{{ route.price * calculator.selected.space }}</b> <sub>ISK</sub> TOTAL</div>
+                        </div>
                     </div>
                 </div>
             </div>
